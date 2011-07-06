@@ -279,9 +279,7 @@ module ActiveMerchant #:nodoc:
           string = ['orderID','amount','currency','CARDNO','PSPID','Operation','ALIAS'].map{|s|parameters[s]}.join + @options[:signature]
           add_pair parameters, 'SHASign' , Digest::SHA1.hexdigest(string)
         end
-        result = parameters.collect { |key, value| "#{key}=#{CGI.escape(value.to_s)}" }.join("&")
-        Rails.logger.info(result.inspect)
-        result
+        parameters.collect { |key, value| "#{key}=#{CGI.escape(value.to_s)}" }.join("&")
       end
 
       def add_pair(post, key, value, options = {})

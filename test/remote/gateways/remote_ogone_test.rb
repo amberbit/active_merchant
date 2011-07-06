@@ -114,7 +114,7 @@ class RemoteOgoneTest < Test::Unit::TestCase
 
 end
 
-class RemoteOgone3dTest < Test::Unit::TestCase
+class RemoteOgone3dWith3dCardTest < Test::Unit::TestCase
 
   def setup
     options = fixtures(:ogone).merge({
@@ -126,6 +126,32 @@ class RemoteOgone3dTest < Test::Unit::TestCase
     @gateway = OgoneGateway.new(options)
     @amount = 100
     @credit_card =   credit_card('4000000000000002')
+    @declined_card = credit_card('1111111111111111')
+    @options = {
+      :order_id => generate_unique_id[0...30],
+      :billing_address => address,
+      :description => 'Store Purchase'
+    }
+  end
+
+  def test_successful_purchase_with_3d_secure
+    assert response = @gateway.purchase(@amount, @credit_card, @options)
+    assert_success response
+    assert_equal OgoneGateway::SUCCESS_MESSAGE, response.message
+  end
+end
+
+class RemoteOgone3dWithout3dCardTest < Test::Unit::TestCase
+  def setup
+    options = fixtures(:ogone).merge({
+      secure_3d: true,
+      accept_url: 'http://vigno.s.amberbit.com',
+      decline_url: 'http://vigno.s.amberbit.com',
+      exception_url: 'http://vigno.s.amberbit.com'
+    })
+    @gateway = OgoneGateway.new(options)
+    @amount = 100
+    @credit_card =   credit_card('4000100011112224')
     @declined_card = credit_card('1111111111111111')
     @options = {
       :order_id => generate_unique_id[0...30],

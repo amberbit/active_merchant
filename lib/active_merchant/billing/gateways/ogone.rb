@@ -103,6 +103,7 @@ module ActiveMerchant #:nodoc:
         add_address(post, payment_source, options)
         add_customer_data(post, options)
         add_money(post, money, options)
+        add_3d_secure(post, options) if @options[:secure_3d]
         commit('SAL', post)
       end
 
@@ -164,6 +165,17 @@ module ActiveMerchant #:nodoc:
         add_customer_data(post, options)
         add_money(post, money, options)
         commit('RFD', post)
+      end
+
+      def add_3d_secure (post, options)
+        add_pair post, 'FLAGr3D', 'Y'
+        add_pair post, 'HTTP_ACCEPT', 'Accept: */*'
+        add_pair  post,'HTTP_USER_AGENT', 'User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)'
+        add_pair  post,'WIN3DS', 'MAINW'
+        add_pair  post,'ACCEPTURL', @options[:accept_url]
+        add_pair  post,'DECLINEURL', @options[:decline_url]
+        add_pair  post,'EXCEPTIONURL', @options[:exception_url]
+        add_pair  post,'LANGUAGE', 'en_US'
       end
       
       def add_payment_source(post, payment_source, options)

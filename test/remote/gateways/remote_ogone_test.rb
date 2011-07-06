@@ -37,7 +37,7 @@ class RemoteOgoneTest < Test::Unit::TestCase
   def test_unsuccessful_purchase
     assert response = @gateway.purchase(@amount, @declined_card, @options)
     assert_failure response
-    assert_equal 'No brand', response.message
+    assert_equal '', response.message
   end
 
   def test_authorize_and_capture
@@ -52,7 +52,7 @@ class RemoteOgoneTest < Test::Unit::TestCase
   def test_unsuccessful_capture
     assert response = @gateway.capture(@amount, '')
     assert_failure response
-    assert_equal 'No card no, no exp date, no brand', response.message
+    assert_equal '', response.message
   end
 
   def test_successful_void
@@ -109,7 +109,7 @@ class RemoteOgoneTest < Test::Unit::TestCase
               )
     assert response = gateway.purchase(@amount, @credit_card, @options)
     assert_failure response
-    assert_equal 'No pspid', response.message
+    assert_equal 'Some of the data entered is incorrect. please retry.', response.message
   end
 
 end

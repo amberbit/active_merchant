@@ -148,14 +148,14 @@ module ActiveMerchant #:nodoc:
         reference, action = identifier.split(";")
         !action.nil?
       end
-      
+
       def perform_reference_credit(money, payment_target, options = {})
         post = {}
         add_authorization(post, reference_from(payment_target))
         add_money(post, money, options)
         commit('RFD', post)        
       end
-      
+
       def perform_non_referenced_credit(money, payment_target, options = {})
         # Non-referenced credit: acts like a reverse purchase
         post = {}
@@ -170,14 +170,14 @@ module ActiveMerchant #:nodoc:
       def add_3d_secure (post, options)
         add_pair post, 'FLAG3D', 'Y'
         add_pair post, 'HTTP_ACCEPT', 'Accept: */*'
-        add_pair  post,'HTTP_USER_AGENT', 'User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)'
-        add_pair  post,'WIN3DS', 'MAINW'
-        add_pair  post,'ACCEPTURL', @options[:accept_url]
-        add_pair  post,'DECLINEURL', @options[:decline_url]
-        add_pair  post,'EXCEPTIONURL', @options[:exception_url]
-        add_pair  post,'LANGUAGE', 'en_US'
+        add_pair post,'HTTP_USER_AGENT', 'User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)'
+        add_pair post,'WIN3DS', 'MAINW'
+        add_pair post,'ACCEPTURL', @options[:accept_url]
+        add_pair post,'DECLINEURL', @options[:decline_url]
+        add_pair post,'EXCEPTIONURL', @options[:exception_url]
+        add_pair post,'LANGUAGE', 'en_US'
       end
-      
+
       def add_payment_source(post, payment_source, options)
         if payment_source.is_a?(String)
           add_alias(post, payment_source)
@@ -241,14 +241,17 @@ module ActiveMerchant #:nodoc:
         add_pair parameters, 'USERID',     @options[:user]
         add_pair parameters, 'PSWD',       @options[:password]
         url = URLS[test? ? :test : :production][parameters['PAYID'] ? :maintenance : :order ]
-        response = parse(ssl_post(url, post_data(action, parameters)))
+        my_post = ssl_post(url, post_data(action, parameters))
+        response = parse(my_post)
         options = { :authorization => [response["PAYID"], action].join(";"),
                     :test => test?,
                     :avs_result => { :code => AVS_MAPPING[response["AAVCheck"]] },
                     :cvv_result => CVV_MAPPING[response["CVCCheck"]] }
-        Response.new(successful?(response), message_from(response), response, options)
+        response_obj = Response.new(successful?(response), message_from(response), response, options)
+        Rails.logger.info my_post
+        response_obj
       end
-      
+
       def successful?(response)
         response["NCERROR"] == "0"
       end

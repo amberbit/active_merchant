@@ -103,7 +103,7 @@ module ActiveMerchant #:nodoc:
         add_address(post, payment_source, options)
         add_customer_data(post, options)
         add_money(post, money, options)
-        add_3d_secure(post, options) if @options[:secure_3d]
+        add_3d_secure(post, options) if @options[:enable_3d_secure]
         commit('SAL', post)
       end
 
@@ -167,8 +167,24 @@ module ActiveMerchant #:nodoc:
         commit('RFD', post)
       end
 
+      # Completes a 3D Secure transaction
+      def three_d_complete(pa_res, md)
+        commit(:three_d_complete, 'PARes' => pa_res, 'MD' => md)
+      end
+
+      # final stage of some other transaction
+     #def complete_3dsecure(params)
+     #  requires!(params, "PaRes", "MD", "VendorTxCode")
+     #  post = {}
+     #  add_pair(post, :MD,           params["MD"])
+     #  add_pair(post, :PARes,        params["PaRes"])
+     #  add_pair(post, :VendorTxCode, sanitize_order_id(params["VendorTxCode"]))
+
+     #  commit(:callback, post)
+     #end
+
       def add_3d_secure (post, options)
-        add_pair post, 'FLAG3D', 'N'
+        add_pair post, 'FLAG3D', 'Y'
         add_pair post, 'HTTP_ACCEPT', 'Accept: */*'
         add_pair post,'HTTP_USER_AGENT', 'User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)'
         add_pair post,'WIN3DS', 'MAINW'
@@ -253,7 +269,8 @@ module ActiveMerchant #:nodoc:
       end
 
       def successful?(response)
-        response["NCERROR"] == "0"
+        #status 46 means 3D card
+        response["NCERROR"] == "0" && response["STATUS"] != "46"
       end
 
       def message_from(response)

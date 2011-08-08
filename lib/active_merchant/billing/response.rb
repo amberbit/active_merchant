@@ -19,6 +19,10 @@ module ActiveMerchant #:nodoc:
         @fraud_review
       end
 
+      def requires_3ds?
+        @requires_3ds
+      end
+
       def initialize(success, message, params = {}, options = {})
         @success, @message, @params = success, message, params.stringify_keys
         @test = options[:test] || false

@@ -263,6 +263,11 @@ module ActiveMerchant #:nodoc:
                     :test => test?,
                     :avs_result => { :code => AVS_MAPPING[response["AAVCheck"]] },
                     :cvv_result => CVV_MAPPING[response["CVCCheck"]] }
+
+        if requires_3ds?
+          options[:requires_3ds] = true
+        end
+
         response_obj = Response.new(successful?(response), message_from(response), response, options)
         Rails.logger.info my_post
         response_obj
@@ -270,7 +275,11 @@ module ActiveMerchant #:nodoc:
 
       def successful?(response)
         #status 46 means 3D card
-        response["NCERROR"] == "0" && response["STATUS"] != "46"
+        response["NCERROR"] == "0"
+      end
+
+      def requires_3ds?
+        response["STATUS"] != "46"
       end
 
       def message_from(response)

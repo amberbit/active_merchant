@@ -279,7 +279,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def requires_3ds?(response)
-        response["STATUS"] != "46"
+        response["STATUS"] == "46"
       end
 
       def message_from(response)

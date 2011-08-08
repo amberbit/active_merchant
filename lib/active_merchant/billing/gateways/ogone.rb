@@ -264,7 +264,7 @@ module ActiveMerchant #:nodoc:
                     :avs_result => { :code => AVS_MAPPING[response["AAVCheck"]] },
                     :cvv_result => CVV_MAPPING[response["CVCCheck"]] }
 
-        if requires_3ds?
+        if requires_3ds?(response)
           options[:requires_3ds] = true
         end
 
@@ -278,7 +278,7 @@ module ActiveMerchant #:nodoc:
         response["NCERROR"] == "0"
       end
 
-      def requires_3ds?
+      def requires_3ds?(response)
         response["STATUS"] != "46"
       end
 

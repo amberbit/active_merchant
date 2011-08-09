@@ -191,7 +191,7 @@ module ActiveMerchant #:nodoc:
         add_pair post,'ACCEPTURL', @options[:accept_url]
         add_pair post,'DECLINEURL', @options[:decline_url]
         add_pair post,'EXCEPTIONURL', @options[:exception_url]
-        add_pair post,'LANGUAGE', 'en_US'
+        add_pair post,'LANGUAGE', @options[:language]
       end
 
       def add_payment_source(post, payment_source, options)
